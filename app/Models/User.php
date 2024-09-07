@@ -20,6 +20,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'country_code',
+        'sponsee_limit',
+        'preferred_languages',
     ];
 
     /**
