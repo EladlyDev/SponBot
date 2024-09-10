@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('country_code', 2)->nullable();
             $table->integer('sponsee_limit')->default(0);
-            $table->json('preferred_languages')->nullable();
+            $table->string('preferred_languages')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();

@@ -5,7 +5,7 @@ use function Livewire\Volt\{state, computed, action};
 state([
     'counter' => auth()->user()->sponsee_limit,
     'checkboxChecked' => auth()->user()->sponsee_limit > 0 ? true : false,
-    'preferedLanguages' => json_decode(auth()->user()->preferred_languages),
+    'preferedLanguages' => explode(', ', auth()->user()->preferred_languages),
     'country' => auth()->user()->country_code,
     'languages' => DB::table('languages')->get(),
     'countries' => DB::table('countries')->get()
@@ -37,7 +37,7 @@ $setCountry = action(function ($country) {
 $save = action(function () {
     // Save the data to the database
     $this->validate([
-        'counter' => 'required|numeric',
+        'counter' => 'required|numeric|int|min:0',
         'country' => 'required',
         'preferedLanguages' => 'required'
     ]);
@@ -45,7 +45,7 @@ $save = action(function () {
     auth()->user()->update([
         'sponsee_limit' => $this->counter,
         'country_code' => $this->country,
-        'preferred_languages' => json_encode($this->preferedLanguages)
+        'preferred_languages' => implode(', ', $this->preferedLanguages)
     ]);
 
     session()->flash('message', 'Settings saved successfully.');
@@ -89,7 +89,7 @@ $save = action(function () {
             <!-- Choose your country -->
             <div class="pt-4"></div>
             <select id="countries" wire:model='country' wire:change="setCountry($event.target.value)" class="max-w-md mx-auto bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                <option selected>Your country</option>
+                <option selected value="--">Your country</option>
                 @foreach ($countries as $country)
                     <option value="{{ $country->code }}">{{ $country->name }}</option>
                 @endforeach

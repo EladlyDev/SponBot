@@ -28,6 +28,11 @@ $logout = function (Logout $logout) {
                         {{ __('Home') }}
                     </x-nav-link>
                 </div>
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('fellows')" :active="request()->routeIs('fellows')" wire:navigate>
+                        {{ __('Fellows') }}
+                    </x-nav-link>
+                </div>
             </div>
 
             <!-- Settings Dropdown -->
@@ -77,6 +82,11 @@ $logout = function (Logout $logout) {
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('home')" :active="request()->routeIs('home')" wire:navigate>
                 {{ __('Home') }}
+            </x-responsive-nav-link>
+        </div>
+        <div class="pt-2 pb-3 space-y-1">
+            <x-responsive-nav-link :href="route('fellows')" :active="request()->routeIs('fellows')" wire:navigate>
+                {{ __('Fellows') }}
             </x-responsive-nav-link>
         </div>
 

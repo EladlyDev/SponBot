@@ -5,6 +5,7 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
@@ -26,6 +27,9 @@ class UserFactory extends Factory
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
+            'country_code' => DB::table('countries')->inRandomOrder()->first()->code,
+            'preferred_languages' => implode(", ", DB::table('languages')->inRandomOrder()->limit(fake()->numberBetween(1, 3))->get()->pluck('code')->toArray()),
+            'sponsee_limit' => fake()->numberBetween(0, 10),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
