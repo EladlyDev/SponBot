@@ -6,6 +6,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Sponsorship;
+use App\Models\SponsorshipRequest;
 
 class User extends Authenticatable
 {
@@ -34,6 +36,30 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    // Relationship for sponsorship requests sent by the user (sponsee)
+    public function sentSponsorshipRequests()
+    {
+        return $this->hasMany(SponsorshipRequest::class, 'sponsee_id');
+    }
+
+    // Relationship for sponsorship requests received by the user (sponsor)
+    public function receivedSponsorshipRequests()
+    {
+        return $this->hasMany(SponsorshipRequest::class, 'sponsor_id');
+    }
+
+    // Relationship for users who sponsor others
+    public function sponsoredUsers()
+    {
+        return $this->hasMany(Sponsorship::class, 'sponsor_id');
+    }
+
+    // Relationship for the user's sponsor (if any)
+    public function sponsor()
+    {
+        return $this->hasOne(Sponsorship::class, 'sponsee_id');
+    }
 
     /**
      * Get the attributes that should be cast.
