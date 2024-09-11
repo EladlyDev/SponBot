@@ -51,11 +51,12 @@ $save = action(function () {
     session()->flash('message', 'Settings saved successfully.');
 });
 
+state('emojis', ['✨', '💪🏽', '😇', '😄', '🌟', '🎉', '🥳', '😊', '👋', '🌈', '🤗', '🥰', '🙌', '🎊', '😃', '🔥', '🎈', '🎁', '🕊️', '🌿', '🧘‍♀️']);
 ?>
 
 <div>
     <div class="p-6 text-gray-900 dark:text-gray-100">
-        <h1 class="text-2xl font-semibold">{{ __('Welcome, ') . explode(' ', auth()->user()->name)[0] }}</h1>
+        <h1 class="text-2xl font-semibold">{{ __('Hello, ') . explode(' ', auth()->user()->name)[0] . ' ' . $emojis[random_int(0, count($emojis) - 1)] }}</h1>
         <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">{{ __('You can edit these settings to get a customized experience.') }}</p>
     </div>
     <div class="border-t border-gray-200 dark:border-gray-700"></div>
@@ -85,6 +86,9 @@ $save = action(function () {
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 1v16M1 9h16"/>
                     </svg>
                 </button>
+            </div>
+            <div class="mx-auto max-w-md" @if ($counter <= 0) style='display:none' @endif>
+                <span class="mx-auto text-xs text-gray-400 dark:text-gray-500">🤙🏽 Awesome! now we will notify you when someone request you for sponsorship!</span>
             </div>
             <!-- Choose your country -->
             <div class="pt-4"></div>

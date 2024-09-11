@@ -22,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_sponsor',
         'country_code',
         'sponsee_limit',
         'preferred_languages',

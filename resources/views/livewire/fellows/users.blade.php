@@ -1,8 +1,11 @@
+
 <?php
 
 use function Livewire\Volt\{state, action, computed};
 use App\Models\User;
 use App\Models\SponsorshipRequest;
+
+$sponsor = User::where("id", SponsorshipRequest::where('sponsee_id', auth()->user()->id)->where('status', 'accepted')->first()?->sponsor_id)->get();
 
 state([
     'filter' => [
@@ -72,7 +75,7 @@ $cancelSponsorshipRequest = action(function ($sponsor_id) {
 });
 ?>
 
-<div class="p-6">
+<div class="pb-6">
     <form wire:submit.prevent="setSearch" class="max-w-lg mx-auto">
         <div x-data="{filterToggle:false}" class="flex relative">
             <label for="search-dropdown" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Your Email</label>
@@ -113,7 +116,7 @@ $cancelSponsorshipRequest = action(function ($sponsor_id) {
     <!-- Grid for cards -->
     <div class="flex flex-col items-center justify-center gap-6">
         @foreach ($fellows as $fellow)
-            <div class="p-4 md:w-1/2 w-full border-[.7px] bg-white rounded-lg shadow-md dark:bg-gray-700 dark:border-s-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+            <div class="p-4 md:w-3/5 w-full border-[.7px] bg-white rounded-lg shadow-md dark:bg-gray-700 dark:border-s-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                 <div class="flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-1/5">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -132,7 +135,7 @@ $cancelSponsorshipRequest = action(function ($sponsor_id) {
                         @if (!$this->isSponRequestExists($fellow->id))
                             <button 
                                 wire:click.throttle.10000ms="sendSponsorshipRequest({{ $fellow->id }})" 
-                                @if (!$fellow->sponsee_limit > 0 || auth()->user()->sponsee_limit !== 0) style="visibility:hidden" @endif 
+                                @if (!$fellow->sponsee_limit > 0 || SponsorshipRequest::where(["sponsor_id" => auth()->user()->id, "sponsee_id" => $fellow->id])->exists() || $sponsor) style="visibility:hidden" @endif 
                                 type="button" 
                                 class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                                 Request
@@ -177,11 +180,11 @@ $cancelSponsorshipRequest = action(function ($sponsor_id) {
             </div>
         @endforeach
         @if ($fellows->isEmpty())
-            <div class="text-center text-gray-500 dark:text-gray-300">
+            <p class="text-lg text-gray-500 dark:text-gray-400">
                 No fellows found,
                 try to change your search criteria
                 or check back later.
-            </div>
+            </p>
         @endif
     </div>
 </div>
