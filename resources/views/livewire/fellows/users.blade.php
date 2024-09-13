@@ -147,10 +147,11 @@ $cancelSponsorshipRequest = action(function ($sponsor_id) {
                             @if (SponsorshipRequest::where('sponsor_id', $fellow->id)->where('sponsee_id', auth()->user()->id)->first()->status === 'accepted')
                                 <button 
                                     type="button" 
-                                    class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+                                    disabled
+                                    class="text-white bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-green-600 dark:focus:ring-green-800">
                                     Accepted
-                                    <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                                    <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M20 6L9 17l-5-5"></path>
                                     </svg>
                                 </button>
                             @elseif(SponsorshipRequest::where('sponsor_id', $fellow->id)->where('sponsee_id', auth()->user()->id)->first()->status === 'rejected')

@@ -3,6 +3,7 @@
 use function Livewire\Volt\{state, action};
 use App\Models\User;
 use App\Models\SponsorshipRequest;
+use App\Models\Sponsorship;
 
 state([
     'sentRequests' => SponsorshipRequest::where('sponsee_id', auth()->user()->id)->get(),
@@ -18,20 +19,22 @@ $cancelSponsorshipRequest = action(function ($request_id) {
 
 $acceptRequest = action(function ($request_id) {
     $request = SponsorshipRequest::find($request_id);
+    if (!$request) return;
     $request->status = 'accepted';
     $request->save();
 
-    $this->receivedRequests = SponsorshipRequest::where('sponsor_id', auth()->user()->id)->get();
+    $this->receivedRequests = SponsorshipRequest::where('sponsor_id', $request->sponsor_id)->get();
 
-    if (auth()->user()->sponsee_limit === 1) {
-        auth()->user()->sponsee_limit = 0;
-    } else {
-        auth()->user()->sponsee_limit -= 1;
-    }
-
+    // update sponsor's sponsee limit
+    auth()->user()->sponsee_limit = auth()->user()->sponsee_limit === 1 ? 0 : auth()->user()->sponsee_limit - 1;
     auth()->user()->is_sponsor = true;
-
     auth()->user()->save();
+
+    // create sponsorship
+    Sponsorship::create([
+        'sponsor_id' => $request->sponsor_id,
+        'sponsee_id' => $request->sponsee_id,
+    ]);
 
     // remove sponsees's other requests
     $otherRequests = SponsorshipRequest::where('sponsee_id', $request->sponsee_id)->where('id', '!=', $request_id)->get();
@@ -90,11 +93,11 @@ $rejectRequest = action(function ($request_id) {
                             @elseif($request->status === 'accepted')
                                 <button 
                                     type="button" 
-                                    class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+                                    disabled
+                                    class="text-white bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-green-600 dark:focus:ring-green-800">
                                     Accepted
-                                    <svg class="rtl:rotate
-                                    -180 w-3.5 h-3.5 ms-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                                    <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M20 6L9 17l-5-5"></path>
                                     </svg>
                                 </button>
                             @else
@@ -140,11 +143,12 @@ $rejectRequest = action(function ($request_id) {
                             <!-- Request sponsorship button -->
                             @if ($request->status === 'accepted')
                                 <button 
-                                    type="button" 
-                                    class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+                                    type="button"
+                                    disabled
+                                    class="text-white bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-green-600 dark:focus:ring-green-800">
                                     Accepted
-                                    <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                                    <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M20 6L9 17l-5-5"></path>
                                     </svg>
                                 </button>
                             @elseif($request->status === 'rejected')
