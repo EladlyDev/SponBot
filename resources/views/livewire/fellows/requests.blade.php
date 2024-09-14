@@ -31,10 +31,16 @@ $acceptRequest = action(function ($request_id) {
     auth()->user()->save();
 
     // create sponsorship
-    Sponsorship::create([
-        'sponsor_id' => $request->sponsor_id,
-        'sponsee_id' => $request->sponsee_id,
-    ]);
+    $sponsorship = Sponsorship::where('sponsor_id', $request->sponsor_id)
+        ->where('sponsee_id', $request->sponsee_id)
+        ->first();
+
+    if (!$sponsorship) {
+        Sponsorship::create([
+            'sponsor_id' => $request->sponsor_id,
+            'sponsee_id' => $request->sponsee_id,
+        ]);
+    }
 
     // remove sponsees's other requests
     $otherRequests = SponsorshipRequest::where('sponsee_id', $request->sponsee_id)->where('id', '!=', $request_id)->get();
