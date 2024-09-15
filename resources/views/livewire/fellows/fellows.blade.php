@@ -3,7 +3,7 @@
 use function Livewire\Volt\{state};
 
 // Initialize state to manage the active view
-state('activeView', 'requests'); // Default to 'users' view
+state('activeView', 'sponsorship'); // Default to 'users' view
 
 ?>
 
