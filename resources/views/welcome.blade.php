@@ -17,15 +17,17 @@
     </head>
     <body class="antialiased font-sans">
         <div class="bg-gray-50 text-black/50 dark:bg-black dark:text-white/50">
-            <div class="relative min-h-screen flex flex-col items-center justify-center selection:bg-[#FF2D20] selection:text-white">
+            <div class="relative min-h-screen flex flex-col items-center justify-center selection:text-white">
                 <div class="relative w-full max-w-2xl px-6 lg:max-w-7xl">
-                    <header class="grid grid-cols-2 items-center gap-2 py-10 lg:grid-cols-3">
-                        <div class="flex lg:justify-center lg:col-start-2">
+                    <header class="grid grid-cols-1 gap-4 py-6 sm:grid-cols-2 lg:grid-cols-3 sm:py-10">
+                        <div class="flex justify-center lg:col-start-2">
                             <img src="{{ asset('images/logo.png') }}" alt="SponBot Logo" class="h-12">
-                            <h1 class="text-4xl font-bold text-gray-800 dark:text-gray-100 ml-4">SponBot</h1>
+                            <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 dark:text-gray-100 ml-4">SponBot</h1>
                         </div>
                         @if (Route::has('login'))
-                            <livewire:welcome.navigation />
+                            <div class="flex justify-center sm:justify-end col-span-2 sm:col-span-1 lg:col-start-3">
+                                <livewire:welcome.navigation />
+                            </div>
                         @endif
                     </header>
 
@@ -52,7 +54,7 @@
                             </div>
 
                             <!-- Support Connection Section -->
-                            <div class="flex flex-col items-start gap-6 overflow-hidden rounded-lg bg-white p-6 shadow-lg ring-1 ring-white/[0.05] transition duration-300 hover:text-black/70 hover:ring-black/20 dark:bg-zinc-900 dark:ring-zinc-800 dark:hover:text-white/70">
+                            <div class="flex mb-10 lg:mb-0 flex-col items-start gap-6 overflow-hidden rounded-lg bg-white p-6 shadow-lg ring-1 ring-white/[0.05] transition duration-300 hover:text-black/70 hover:ring-black/20 dark:bg-zinc-900 dark:ring-zinc-800 dark:hover:text-white/70 w-full">
                                 <h3 class="text-lg font-medium text-gray-900 dark:text-white">Reach Out, Anytime</h3>
                                 <p class="text-gray-600 dark:text-gray-400">Find people available for support in real-time. Whether you need a quick chat or deep conversation, SponBot is here to help.</p>
                             </div>

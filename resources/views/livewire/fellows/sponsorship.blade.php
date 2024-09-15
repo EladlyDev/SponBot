@@ -24,9 +24,9 @@ new class extends Component {
             return $sponsorship->sponsor;
         });
         $this->sponsees = Sponsorship::where("sponsor_id", $this->userId)->get();
-        $firstSponseeUser = $this->sponsees ? User::findOrFail($this->sponsees->first()->sponsee->id) : null;
-        $firstSponsorUser = $this->sponsor->first() ? User::find($this->sponsor->first()->id) : null;
-        $this->setActiveChat($firstSponsorUser->id ?? $firstSponseeUser->id);
+        $firstSponseeUser = !$this->sponsees->isEmpty() ? User::findOrFail($this->sponsees->first()->sponsee->id) : null;
+        $firstSponsorUser = !$this->sponsor->isEmpty() ? User::find($this->sponsor->first()->id) : null;
+        $this->setActiveChat($firstSponsorUser ? $firstSponsorUser->id : ($firstSponseeUser ? $firstSponseeUser->id : null));
     }
 
     public function setActiveChat($id)
