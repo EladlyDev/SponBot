@@ -1,69 +1,78 @@
 <?php
 
-use function Livewire\Volt\{state, action};
-use App\Models\Sponsorship;
+use Livewire\Volt\Component;
 use App\Models\User;
+use App\Models\Sponsorship;
 use App\Models\ChatMessage;
+use App\Events\MessageSent;
 
-$userId = auth()->user()->id;
+new class extends Component {
+    public $userId;
+    public $sponsor;
+    public $sponsees;
+    public $activeChat;
+    public $messages = [];
+    public $newMessage = '';
 
-state([
-    'sponsor' => Sponsorship::where("sponsee_id", $userId)->get()->map(function ($sponsorship) {
-        return $sponsorship->sponsor;
-    }),
-    'sponsees' => Sponsorship::where("sponsor_id", $userId)->get(),
-    'activeChat' => null,
-    'messages' => null,
-    'userId' => $userId,
-    'newMessage' => '',
-]);
+    protected $listeners = ['echo-private:chat.{userId},MessageSent' => 'onMessageSent'];
 
-$setActiveChat = action(function ($id) {
-    $userId = $this->userId;
-    $activeChat = User::find($id);
-    $messages = ChatMessage::where('sender_id', $userId)
-        ->where('receiver_id', $id)
-        ->orWhere('sender_id', $id)
-        ->where('receiver_id', $userId)
-        ->orderBy('created_at', 'asc')
-        ->get();
-    
-    $this->activeChat = $activeChat;
-    $this->messages = $messages;
 
-    // Mark all messages as read
-    ChatMessage::where('sender_id', $id)
-        ->where('receiver_id', $userId)
-        ->update(['is_read' => true]);
-});
-
-$sendMessage = action(function () {
-    if (strlen(trim($this->newMessage)) == 0) {
-        return;
+    public function mount()
+    {
+        $this->userId = auth()->user()->id;
+        $this->sponsor = Sponsorship::where("sponsee_id", $this->userId)->get()->map(function ($sponsorship) {
+            return $sponsorship->sponsor;
+        });
+        $this->sponsees = Sponsorship::where("sponsor_id", $this->userId)->get();
+        $firstSponseeUser = $this->sponsees ? User::findOrFail($this->sponsees->first()->sponsee->id) : null;
+        $firstSponsorUser = $this->sponsor->first() ? User::find($this->sponsor->first()->id) : null;
+        $this->setActiveChat($firstSponsorUser->id ?? $firstSponseeUser->id);
     }
 
-    $userId = $this->userId;
-    $receiverId = $this->activeChat->id;
-    $message = $this->newMessage;
+    public function setActiveChat($id)
+    {
+        $userId = $this->userId;
+        $activeChat = User::find($id);
+        $messages = ChatMessage::where('sender_id', $userId)
+            ->where('receiver_id', $id)
+            ->orWhere('sender_id', $id)
+            ->where('receiver_id', $userId)
+            ->orderBy('created_at', 'asc')
+            ->get();
+        
+        $this->activeChat = $activeChat;
+        $this->messages = $messages;
+    }
 
-    ChatMessage::create([
-        'sender_id' => $userId,
-        'receiver_id' => $receiverId,
-        'message' => $message,
-    ]);
+    public function sendMessage()
+    {
+        if (strlen(trim($this->newMessage)) == 0) {
+            return;
+        }
 
-    $this->newMessage = '';
-    $this->messages = ChatMessage::where('sender_id', $userId)
-        ->where('receiver_id', $receiverId)
-        ->orWhere('sender_id', $receiverId)
-        ->where('receiver_id', $userId)
-        ->orderBy('created_at', 'asc')
-        ->get();
-});
+        $userId = $this->userId;
+        $receiverId = $this->activeChat->id;
+        $message = $this->newMessage;
 
-?>
+        $chatMessage = ChatMessage::create([
+            'sender_id' => $userId,
+            'receiver_id' => $receiverId,
+            'message' => $message,
+        ]);
 
-<div x-data="{ isSidebarOpen: false }" class="flex flex-col h-screen bg-white text-black dark:bg-gray-900 dark:text-white">
+        MessageSent::dispatch($chatMessage);
+        $this->messages->push($chatMessage);
+    
+        $this->reset('newMessage');
+    }
+
+    public function onMessageSent ($event) {
+        $message = ChatMessage::find($event['message']['id']);
+        $this->messages->push($message);
+    }
+}; ?>
+
+<div x-data="{ isSidebarOpen: false }" class="flex flex-col h-screen lg:h-[50vh] bg-white text-black dark:bg-gray-900 dark:text-white">
     <!-- Mobile Toggle for Sidebar -->
     <div class="md:hidden p-4 border-b border-gray-300 dark:border-gray-700 flex justify-between items-center">
         <button 
@@ -147,7 +156,7 @@ $sendMessage = action(function () {
                 </div>
 
                 <!-- Chat Messages -->
-                <div class="flex-grow overflow-y-auto p-4">
+                <div class="flex-grow overflow-y-auto p-4" id="chatBox">
                     <div class="space-y-2">
                         <!-- Incoming Message -->
                         @foreach ($messages as $message)
@@ -156,15 +165,6 @@ $sendMessage = action(function () {
                                     <div class="bg-blue-600 text-white p-2 rounded-lg max-w-xs text-sm">
                                         {{ $message->message }}
                                     </div>
-                                    @if (!$message->is_read && $message->sender_id == $userId)
-                                        <svg class="w-4 h-4 ml-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                        </svg>
-                                    @else
-                                        <svg class="w-4 h-4 ml-2 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                        </svg>
-                                    @endif
                                 </div>
                             @else
                                 <div class="flex">
@@ -192,3 +192,14 @@ $sendMessage = action(function () {
         @endif
     </div>
 </div>
+
+<script>
+    window.onload = function() {
+        var elem = document.getElementById('chatBox');
+        elem.scrollTop = elem.scrollHeight;
+    };
+    window.setInterval(function() {
+        var elem = document.getElementById('chatBox');
+        elem.scrollTop = elem.scrollHeight;
+    }, 1000);
+</script>
