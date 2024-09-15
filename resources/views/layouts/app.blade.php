@@ -18,6 +18,9 @@
 
         <!-- Include Tom Select JS -->
         <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+
+        <link rel="icon" href="{{ asset('favicon.png') }}" type="image/png" />
+
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900">

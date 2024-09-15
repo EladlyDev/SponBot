@@ -72,7 +72,7 @@ new class extends Component {
     }
 }; ?>
 
-<div x-data="{ isSidebarOpen: false }" class="flex flex-col h-screen lg:h-[50vh] bg-white text-black dark:bg-gray-900 dark:text-white">
+<div x-data="{ isSidebarOpen: false }" class="flex flex-col h-screen bg-white text-black dark:bg-gray-900 dark:text-white">
     <!-- Mobile Toggle for Sidebar -->
     <div class="md:hidden p-4 border-b border-gray-300 dark:border-gray-700 flex justify-between items-center">
         <button 
